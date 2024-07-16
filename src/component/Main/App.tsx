@@ -1,6 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, Animated, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
-import IVSPlayer, { type IVSPlayerRef, LogLevel,type IVSPlayerProps } from 'amazon-ivs-react-native-player';
+import {
+  Animated,
+  TouchableWithoutFeedback,
+  View,
+  Platform,
+  ActivityIndicator,
+  type ViewStyle,
+} from 'react-native';
+import IVSPlayer, { type IVSPlayerRef, LogLevel, type IVSPlayerProps } from 'amazon-ivs-react-native-player';
 import styled from 'styled-components/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { enterFullScreen, exitFullScreen, px } from './utiles';
@@ -28,6 +35,12 @@ interface DataResponse {
 
 interface IVSPlayerComponentProps extends IVSPlayerProps {
   title?: string;
+  isLive?: boolean;
+  isFullScreen: boolean;
+  LeftCustomComponent?: React.ComponentType;
+  RightCustomComponent?: React.ComponentType;
+  leftCustomComponentContainerStyle: ViewStyle;
+  rightCustomComponentContainerStyle: ViewStyle;
 }
 
 const formatTime = (seconds: number) => {
@@ -35,12 +48,14 @@ const formatTime = (seconds: number) => {
   const secs = Math.floor(seconds % 60);
   return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
-
+const isIOS = Platform.OS === 'ios';
 const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
+                                                                 onQualityChange,
                                                                  streamUrl,
                                                                  autoplay = true,
                                                                  loop = true,
                                                                  title,
+                                                                 isLive = false,
                                                                  logLevel = LogLevel.IVSLogLevelError,
                                                                  muted = false,
                                                                  paused: initialPaused = false,
@@ -49,10 +64,25 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                                                                  quality: initialQuality,
                                                                  autoMaxQuality,
                                                                  autoQualityMode = true,
+                                                                 onVideoStatistics,
                                                                  maxBitrate,
                                                                  liveLowLatency,
                                                                  rebufferToLive = false,
                                                                  style,
+                                                                 onPipChange,
+                                                                 onTimePoint,
+                                                                 resizeMode,
+                                                                 pipEnabled,
+                                                                 onRebuffering, onLiveLatencyChange,
+                                                                 onError, onLoadStart,
+                                                                 onTextMetadataCue,
+                                                                 onSeek,
+                                                                 initialBufferDuration,
+                                                                 isFullScreen: isInitFullScreen = false,
+                                                                 leftCustomComponentContainerStyle,
+                                                                 rightCustomComponentContainerStyle,
+                                                                 LeftCustomComponent,
+                                                                 RightCustomComponent,
                                                                }) => {
   const mediaPlayerRef = useRef<IVSPlayerRef>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -63,28 +93,20 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
   const controlsOpacity = useRef(new Animated.Value(1)).current;
   const controlsTimeout = useRef<NodeJS.Timeout | null>(null);
   const [volume, setVolume] = useState(defaultVolume);
-  const [isFullScreen, setIsFullScreen] = useState(false);
-  const appState = useRef(AppState.currentState);
+  const [isFullScreen, setIsFullScreen] = useState(isInitFullScreen);
+  const [isBuffering, setIsBuffering] = useState(false); // Add state for buffering
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-        // App has come to the foreground, handle any necessary actions
-      }
-
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+  const handleUserInteraction = () => {
+    showControls();
+  };
 
   const handleSliderValueChange = (value: number) => {
+    handleUserInteraction();
     mediaPlayerRef.current?.seekTo(value);
   };
 
   const togglePlayPause = () => {
+    handleUserInteraction();
     setPaused(!paused);
   };
 
@@ -114,6 +136,14 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
     }).start();
   };
 
+  useEffect(() => {
+    if (!isInitFullScreen) {
+      exitFullScreen();
+    } else {
+      enterFullScreen();
+    }
+  }, [isInitFullScreen]);
+
   const resetControlsTimeout = () => {
     if (controlsTimeout.current) {
       clearTimeout(controlsTimeout.current);
@@ -121,10 +151,6 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
     controlsTimeout.current = setTimeout(() => {
       hideControls();
     }, 3000);
-  };
-
-  const handleUserInteraction = () => {
-    showControls();
   };
 
   const handleQualityChange = (item: Quality) => {
@@ -149,76 +175,113 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
   }, []);
 
   const handleVolumeValueChange = (value: number) => {
+    handleUserInteraction();
     setVolume(value);
   };
 
-  const PlayerContainer = !isFullScreen ? SafeAreaView : React.Fragment;
-  const containerProps = isFullScreen ? {} : { style: { flex: 1 } };
-
+  const handleBuffering = (buffering: boolean) => {
+    if (onRebuffering) {
+      onRebuffering();
+    }
+    setIsBuffering(buffering);
+  };
+  const handleError = (error: string) => {
+    if (onError) {
+      onError(error);
+    }
+  };
   return (
     <TouchableWithoutFeedback onPress={handleUserInteraction}>
       <Container>
-        <>
-          <IVSPlayerWrapper>
-            <IVSPlayer
-              ref={mediaPlayerRef}
-              streamUrl={streamUrl}
-              autoplay={autoplay}
-              loop={loop}
-              logLevel={logLevel}
-              muted={muted}
-              paused={paused}
-              playbackRate={playbackRate}
-              volume={volume}
-              quality={selectedQuality}
-              autoMaxQuality={autoMaxQuality}
-              autoQualityMode={autoQualityMode}
-              maxBitrate={maxBitrate}
-              liveLowLatency={liveLowLatency}
-              rebufferToLive={rebufferToLive}
-              onRebuffering={() => console.log('rebuffering...')}
-              onError={(error) => console.log('error', error)}
-              onLiveLatencyChange={(liveLatency) => console.log(`live latency changed: ${liveLatency}`)}
-              onData={(data: DataResponse) => handleData(data)}
-              onVideoStatistics={(video) => console.log('video bitrate', video.bitrate)}
-              onPlayerStateChange={(state) => console.log(`state changed: ${state}`)}
-              onLoad={(loadedDuration) => setDuration(loadedDuration || 0)}
-              onLoadStart={() => console.log(`load started`)}
-              onProgress={(position) => setCurrentTime(position)}
-              onTimePoint={(timePoint) => console.log('time point', timePoint)}
-              onTextMetadataCue={(textMetadataCue) => console.log('text metadata cue text', textMetadataCue.text)}
-              onDurationChange={(newDuration) => isFinite(newDuration || 0) && setDuration(newDuration || 0)}
-              onSeek={(newPosition) => console.log('new position', newPosition)}
-              onQualityChange={(newQuality) => console.log(`quality changed: ${newQuality?.name}`)}
-              onPipChange={(isActive) => console.log(`picture in picture changed - isActive: ${isActive}`)}
-              style={{ backgroundColor: '#000', ...style }}
-            />
-            <AnimatedControls style={{ opacity: controlsOpacity }}>
-              <Overlay>
-                <Top>
-                  <IsLive />
+        <IVSPlayerWrapper>
+          <IVSPlayer
+            ref={mediaPlayerRef}
+            streamUrl={streamUrl}
+            autoplay={autoplay}
+            loop={loop}
+            logLevel={logLevel}
+            muted={muted}
+            paused={paused}
+            playbackRate={playbackRate}
+            volume={volume}
+            quality={selectedQuality}
+            autoMaxQuality={autoMaxQuality}
+            autoQualityMode={autoQualityMode}
+            maxBitrate={maxBitrate}
+            liveLowLatency={liveLowLatency}
+            rebufferToLive={rebufferToLive}
+            onRebuffering={() => handleBuffering(true)}
+            onError={handleError}
+            onLiveLatencyChange={onLiveLatencyChange}
+            onData={(data: DataResponse) => handleData(data)}
+            onVideoStatistics={onVideoStatistics}
+            onPlayerStateChange={(state) => handleBuffering(state === 'Buffering')}
+            onLoad={(loadedDuration) => setDuration(loadedDuration || 0)}
+            onLoadStart={onLoadStart}
+            onProgress={(position) => setCurrentTime(position)}
+            onTimePoint={onTimePoint}
+            resizeMode={resizeMode}
+            pipEnabled={pipEnabled}
+            onTextMetadataCue={onTextMetadataCue}
+            onDurationChange={(newDuration) => isFinite(newDuration || 0) && setDuration(newDuration || 0)}
+            onSeek={onSeek}
+            onQualityChange={onQualityChange}
+            onPipChange={onPipChange}
+            initialBufferDuration={initialBufferDuration}
+            style={{ backgroundColor: '#000', ...style }}
+          />
+          {isBuffering && isIOS && (
+            <BufferingOverlay>
+              <ActivityIndicator size="large" color="#fff" />
+              <BufferingText>Loading...</BufferingText>
+            </BufferingOverlay>
+          )}
+          <AnimatedControls style={{ opacity: controlsOpacity }}>
+            <Overlay>
+              <Top>
+                <TopInner>
+                  {!isFullScreen && <View style={{ marginTop: px(20) }} />}
+                  <IsLive isLive={isLive} />
                   <Title numberOfLines={1} ellipsizeMode="tail">{title}</Title>
                   <Volume volume={volume} handleVolumeValueChange={handleVolumeValueChange} />
-                </Top>
-                <Bottom>
-                  <BottomSectionOne>
-                    <PlayTime>{formatTime(currentTime)}</PlayTime>
-                    <Slider
-                      style={{ width: '80%' }}
-                      minimumValue={0}
-                      maximumValue={duration}
-                      thumbTintColor="rgba(211,211,211,.8)"
-                      value={currentTime}
-                      slideOnTap
-                      onValueChange={handleSliderValueChange}
-                      minimumTrackTintColor="rgba(211,211,211,.8)"
-                      maximumTrackTintColor="rgba(211,211,211,0.44)"
-                    />
-                    <PlayTime>{formatTime(duration)}</PlayTime>
-                  </BottomSectionOne>
-                  <BottomSectionTwo>
-                    <FullScreenButton isFullScreen={isFullScreen} onPress={handleFullScreen} />
+                </TopInner>
+                {/*<CustomComponentContainer>*/}
+                {/*  <ContentOne></ContentOne>*/}
+                {/*  <ContentOne></ContentOne>*/}
+                {/*</CustomComponentContainer>*/}
+              </Top>
+              <Bottom>
+                <CustomComponentContainer>
+                  <ContentOne style={[{ left: px((3)) }, leftCustomComponentContainerStyle]}>
+                    {LeftCustomComponent && <LeftCustomComponent />}
+                  </ContentOne>
+                  <ContentOne style={rightCustomComponentContainerStyle}>
+                    {RightCustomComponent && <RightCustomComponent />}
+                  </ContentOne>
+                </CustomComponentContainer>
+                <BottomSectionOne>
+                  <PlayTime>{formatTime(currentTime)}</PlayTime>
+                  <Slider
+                    style={{ flex: 1, zIndex: 999, marginLeft: px(3), marginRight: px(3) }}
+                    minimumValue={0}
+                    maximumValue={duration}
+                    thumbTintColor="rgba(211,211,211,.8)"
+                    value={currentTime}
+                    slideOnTap
+                    onValueChange={handleSliderValueChange}
+                    minimumTrackTintColor="rgba(211,211,211,.8)"
+                    maximumTrackTintColor="rgba(211,211,211,0.44)"
+                  />
+                  <PlayTime>{formatTime(duration)}</PlayTime>
+                </BottomSectionOne>
+                <BottomSectionTwo>
+                  <FullScreenContainer>
+                    <FullScreenButton isFullScreen={isFullScreen || isInitFullScreen} onPress={handleFullScreen} />
+                  </FullScreenContainer>
+                  <PlayButtonContainer>
                     <PlayPauseButton togglePlayPause={togglePlayPause} paused={paused} />
+                  </PlayButtonContainer>
+                  <DropDownContainer>
                     <Dropdown
                       data={qualities}
                       labelField="name"
@@ -227,17 +290,22 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                       onChange={(item: Quality) => handleQualityChange(item)}
                       placeholder="Quality"
                       placeholderStyle={{ color: 'white', fontSize: 10 }}
-                      selectedTextStyle={{ color: 'white' }}
+                      selectedTextStyle={{ color: 'white', fontSize: 13 }}
                       containerStyle={{ backgroundColor: '#fff' }}
-                      style={{ backgroundColor: 'rgba(124,122,122,0.5)', padding: 10, borderRadius: 5, width: 100 }}
+                      style={{
+                        backgroundColor: 'rgba(124,122,122,0.5)',
+                        padding: px(3),
+                        borderRadius: 5,
+                        width: px(30),
+                      }}
                       itemTextStyle={{ color: 'black' }}
                     />
-                  </BottomSectionTwo>
-                </Bottom>
-              </Overlay>
-            </AnimatedControls>
-          </IVSPlayerWrapper>
-        </>
+                  </DropDownContainer>
+                </BottomSectionTwo>
+              </Bottom>
+            </Overlay>
+          </AnimatedControls>
+        </IVSPlayerWrapper>
       </Container>
     </TouchableWithoutFeedback>
   );
@@ -250,17 +318,20 @@ const Container = styled.View`
 
 const PlayTime = styled.Text`
   color: ${colors.white};
-  margin-right: ${px(5)}px;
-  margin-left: ${px(3)}px;
-  top: 1px;
 `;
-const StyledSafeAreaView = styled(SafeAreaView)<{ isFullScreen: boolean }>`
+
+const DropDownContainer = styled.View``;
+
+const PlayButtonContainer = styled.View`
   flex: 1;
-  ${({ isFullScreen }) => isFullScreen && `
-    padding-top: 0;
-    padding-bottom: 0;
-  `}
+  align-self: center;
+  left: 20%;
 `;
+
+const FullScreenContainer = styled.View`
+  flex: 1;
+`;
+
 const Title = styled.Text`
   color: ${colors.white};
   flex: 1;
@@ -284,12 +355,20 @@ const Overlay = styled.View`
 `;
 
 const Top = styled.View`
+
+`;
+
+const TopInner = styled.View`
+  margin-top: ${px(8)}px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 `;
 
-const Bottom = styled.View``;
+
+const Bottom = styled.View`
+  justify-content: flex-end;
+`;
 
 const AnimatedControls = styled(Animated.View)`
   position: absolute;
@@ -301,7 +380,8 @@ const AnimatedControls = styled(Animated.View)`
 
 const BottomSectionOne = styled.View`
   flex-direction: row;
-  justify-content: center;
+  align-items: center;
+  z-index: 99999;
 `;
 
 const BottomSectionTwo = styled.View`
@@ -309,7 +389,34 @@ const BottomSectionTwo = styled.View`
   width: 100%;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${px(5)}px;
+  margin-bottom: ${px(isIOS ? 10 : 3)}px;
 `;
 
+const BufferingOverlay = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+`;
+
+const BufferingText = styled.Text`
+  color: ${colors.white};
+  margin-top: 10px;
+`;
+
+
+const CustomComponentContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+const ContentOne = styled.View`
+  height: 80%;
+  min-width: ${px(20)}px;
+  margin-bottom: ${px(10)}px;
+`;
 export default IVSPlayerComponent;

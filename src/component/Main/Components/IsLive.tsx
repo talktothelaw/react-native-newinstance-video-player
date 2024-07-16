@@ -1,10 +1,10 @@
 import styled from 'styled-components/native';
 import { px } from '../utiles';
 
-const IsLive = () => {
+const IsLive = ({isLive}:{isLive:boolean}) => {
   return (
     <LiveIconContainer>
-      <LiveIcon/><Live>Live</Live>
+      {isLive && <><LiveIcon /><Live>Live</Live></>}
     </LiveIconContainer>
   );
 };

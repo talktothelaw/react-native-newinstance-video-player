@@ -20,7 +20,8 @@ const FullScreenButton: React.FC<Props> = ({onPress, isFullScreen}) => {
 };
 
 const ButtonContainer = styled.TouchableOpacity`
-  background-color: rgba(0, 0, 0, 0.5);
+  width: ${px(7)}px;
+  height: ${px(7)}px;
 `;
 
 const ButtonImage = styled.Image`

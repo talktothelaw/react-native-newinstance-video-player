@@ -24,7 +24,6 @@ const PlayPauseButtonCustom = ({togglePlayPause, paused}:Props) => {
 export default PlayPauseButtonCustom;
 
 const PlayPauseButtonContainer = styled.View`
-  background-color: #00008B;
   justify-content: center;
 `;
 

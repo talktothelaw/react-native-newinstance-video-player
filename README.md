@@ -1,156 +1,193 @@
-// src/IVSPlayerComponent.tsx
-import React, { useRef, useEffect, useState } from 'react';
-import { View, Button, StyleProp, ViewStyle } from 'react-native';
-import IVSPlayer, { IVSPlayerRef, LogLevel, Quality, Source } from 'amazon-ivs-react-native-player';
+### react-native-newinstance-video-player
 
-interface IVSPlayerComponentProps {
-streamUrl?: string;
-autoplay?: boolean;
-loop?: boolean;
-logLevel?: LogLevel;
-muted?: boolean;
-paused?: boolean;
-playbackRate?: number;
-volume?: number;
-quality?: Quality | null;
-autoMaxQuality?: Quality;
-autoQualityMode?: boolean;
-maxBitrate?: number;
-liveLowLatency?: boolean;
-rebufferToLive?: boolean;
-onRebuffering?: () => void;
-onError?: (error: string) => void;
-onLiveLatencyChange?: (liveLatency: number) => void;
-onData?: ({ qualities, version, sessionId }: { qualities: Quality; version: string; sessionId: string }) => void;
-onVideoStatistics?: ({ duration, bitrate, framesDropped, framesDecoded }: { duration: number | null; bitrate: number; framesDropped: number; framesDecoded: number }) => void;
-onPlayerStateChange?: (state: any) => void;
-onLoad?: (duration: number | number) => void;
-onLoadStart?: () => void;
-onProgress?: (position: number) => void;
-initialBufferDuration?: number;
-progressInterval?: number;
-onTimePoint?: (position: number) => number;
-breakpoints?: number[];
-onTextCue?: (textCue: any) => void;
-onTextMetadataCue?: (textMetadataCue: any) => void;
-onDurationChange?: (duration: number | null) => void;
-onSeek?: (position: number) => void;
-onQualityChange?: (quality: Quality) => void;
-onPipChange?: (isActive: boolean) => void;
-resizeMode?: 'aspectFill' | 'aspectFit' | 'aspectZoom';
-style?: StyleProp<ViewStyle>;
-}
+**Version**: 0.1.0
 
-const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
-streamUrl,
-autoplay = true,
-loop = true,
-logLevel = LogLevel.ERROR,
-muted = false,
-paused = false,
-playbackRate = 1.0,
-volume = 1.0,
-quality,
-autoMaxQuality,
-autoQualityMode = true,
-maxBitrate,
-liveLowLatency,
-rebufferToLive = false,
-onRebuffering,
-onError,
-onLiveLatencyChange,
-onData,
-onVideoStatistics,
-onPlayerStateChange,
-onLoad,
-onLoadStart,
-onProgress,
-initialBufferDuration,
-progressInterval = 1,
-onTimePoint,
-breakpoints = [],
-onTextCue,
-onTextMetadataCue,
-onDurationChange,
-onSeek,
-onQualityChange,
-onPipChange,
-resizeMode,
-style,
-}) => {
-const mediaPlayerRef = useRef<IVSPlayerRef>(null);
-const [sources, setSources] = useState<Source[]>([]);
+---
 
-useEffect(() => {
-const { current } = mediaPlayerRef;
-if (!current) return;
+#### Description
 
-    // Preloading example URLs for demonstration
-    const prefetch = [
-      current.preload('https://example.com/stream0.m3u8'),
-      current.preload('https://example.com/stream1.m3u8'),
-      current.preload('https://example.com/stream2.m3u8'),
-    ];
-    setSources(prefetch);
+The `react-native-newinstance-video-player` is a highly customizable and versatile video player component designed for React Native applications. Built on top of the `amazon-ivs-react-native-player`, this package provides developers with a robust and feature-rich solution for embedding video playback capabilities within their mobile applications. Built with flexibility and ease of use in mind, `react-native-newinstance-video-player` allows for extensive customization to meet the specific needs of any project.
 
-    return () => {
-      prefetch.forEach((source) => current.releaseSource(source));
-    };
-}, []);
+---
 
-const handlePlay = () => mediaPlayerRef.current?.play();
-const handlePause = () => mediaPlayerRef.current?.pause();
-const handleSeekTo = (position: number) => mediaPlayerRef.current?.seekTo(position);
-const togglePip = () => mediaPlayerRef.current?.togglePip();
+#### Installation
 
-return (
-<View style={style}>
-<IVSPlayer
-ref={mediaPlayerRef}
-streamUrl={streamUrl}
-autoplay={autoplay}
-loop={loop}
-logLevel={logLevel}
-muted={muted}
-paused={paused}
-playbackRate={playbackRate}
-volume={volume}
-quality={quality}
-autoMaxQuality={autoMaxQuality}
-autoQualityMode={autoQualityMode}
-maxBitrate={maxBitrate}
-liveLowLatency={liveLowLatency}
-rebufferToLive={rebufferToLive}
-onRebuffering={onRebuffering}
-onError={onError}
-onLiveLatencyChange={onLiveLatencyChange}
-onData={onData}
-onVideoStatistics={onVideoStatistics}
-onPlayerStateChange={onPlayerStateChange}
-onLoad={onLoad}
-onLoadStart={onLoadStart}
-onProgress={onProgress}
-initialBufferDuration={initialBufferDuration}
-progressInterval={progressInterval}
-onTimePoint={onTimePoint}
-breakpoints={breakpoints}
-onTextCue={onTextCue}
-onTextMetadataCue={onTextMetadataCue}
-onDurationChange={onDurationChange}
-onSeek={onSeek}
-onQualityChange={onQualityChange}
-onPipChange={onPipChange}
-resizeMode={resizeMode}
-/>
-<Button onPress={handlePlay} title="Play" />
-<Button onPress={handlePause} title="Pause" />
-<Button onPress={() => handleSeekTo(15)} title="Seek to 15s" />
-<Button onPress={togglePip} title="Toggle PiP" />
-{sources.map((source, i) => (
-<Button key={i} onPress={() => mediaPlayerRef.current?.loadSource(source)} title={`Load URL${i}`} />
-))}
-</View>
-);
+To install the package along with its peer dependencies, use the following commands:
+
+```bash
+yarn add react-native-newinstance-video-player amazon-ivs-react-native-player @react-native-assets/slider react-native-element-dropdown
+```
+
+or with npm:
+
+```bash
+npm install react-native-newinstance-video-player amazon-ivs-react-native-player @react-native-assets/slider react-native-element-dropdown
+```
+
+---
+
+#### Usage
+
+Here is a basic example of how to use the `react-native-newinstance-video-player`:
+
+```jsx
+import React from 'react';
+import { SafeAreaView } from 'react-native';
+import IVSPlayerComponent from 'react-native-newinstance-video-player';
+
+const App = () => {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <IVSPlayerComponent
+        streamUrl="https://path/to/your/stream.m3u8"
+        isLive={true}
+        title="Live Stream"
+        isFullScreen={false}
+      />
+    </SafeAreaView>
+  );
 };
 
-export default IVSPlayerComponent;
+export default App;
+```
+
+---
+
+#### API
+
+**IVSPlayerComponent Props**
+
+| Prop                              | Type                           | Default                         | Description                                                                                   |
+|-----------------------------------|--------------------------------|---------------------------------|-----------------------------------------------------------------------------------------------|
+| `streamUrl`                       | `string`                       | `undefined`                     | URL of the video stream.                                                                      |
+| `autoplay`                        | `boolean`                      | `true`                          | If true, the video will start playing automatically.                                          |
+| `loop`                            | `boolean`                      | `true`                          | If true, the video will loop when it reaches the end.                                         |
+| `title`                           | `string`                       | `undefined`                     | Title of the video.                                                                           |
+| `isLive`                          | `boolean`                      | `false`                         | If true, the video is a live stream.                                                          |
+| `logLevel`                        | `LogLevel`                     | `LogLevel.IVSLogLevelError`     | Log level for the IVS player.                                                                 |
+| `muted`                           | `boolean`                      | `false`                         | If true, the video will be muted.                                                             |
+| `paused`                          | `boolean`                      | `false`                         | If true, the video will be paused.                                                            |
+| `playbackRate`                    | `number`                       | `1.0`                           | Playback rate of the video.                                                                   |
+| `volume`                          | `number`                       | `1.0`                           | Volume of the video.                                                                          |
+| `quality`                         | `Quality`                      | `null`                          | Initial video quality.                                                                        |
+| `autoMaxQuality`                  | `boolean`                      | `false`                         | If true, the player will automatically select the maximum quality available.                  |
+| `autoQualityMode`                 | `boolean`                      | `true`                          | If true, the player will automatically manage quality.                                        |
+| `maxBitrate`                      | `number`                       | `undefined`                     | Maximum bitrate for video quality.                                                            |
+| `liveLowLatency`                  | `boolean`                      | `false`                         | If true, enables low latency mode for live streams.                                           |
+| `rebufferToLive`                  | `boolean`                      | `false`                         | If true, rebuffers to the live edge on low latency streams.                                   |
+| `style`                           | `ViewStyle`                    | `undefined`                     | Custom styles for the video player container.                                                 |
+| `onPipChange`                     | `function`                     | `undefined`                     | Callback when Picture-in-Picture mode changes.                                                |
+| `onTimePoint`                     | `function`                     | `undefined`                     | Callback for time point events.                                                               |
+| `resizeMode`                      | `string`                       | `undefined`                     | Resize mode for the video player.                                                             |
+| `pipEnabled`                      | `boolean`                      | `false`                         | If true, enables Picture-in-Picture mode.                                                     |
+| `onRebuffering`                   | `function`                     | `undefined`                     | Callback for rebuffering events.                                                              |
+| `onLiveLatencyChange`             | `function`                     | `undefined`                     | Callback when live latency changes.                                                           |
+| `onError`                         | `function`                     | `undefined`                     | Callback for error events.                                                                    |
+| `onLoadStart`                     | `function`                     | `undefined`                     | Callback when video starts loading.                                                           |
+| `onTextMetadataCue`               | `function`                     | `undefined`                     | Callback for text metadata cue events.                                                        |
+| `onSeek`                          | `function`                     | `undefined`                     | Callback when seeking.                                                                        |
+| `initialBufferDuration`           | `number`                       | `undefined`                     | Initial buffer duration.                                                                      |
+| `isFullScreen`                    | `boolean`                      | `false`                         | If true, the player starts in full screen mode.                                               |
+| `leftCustomComponentContainerStyle` | `ViewStyle`                  | `undefined`                     | Custom styles for the left custom component container.                                        |
+| `rightCustomComponentContainerStyle` | `ViewStyle`                 | `undefined`                     | Custom styles for the right custom component container.                                       |
+| `LeftCustomComponent`             | `React.ComponentType`          | `undefined`                     | Custom component to render on the left side of the controls.                                  |
+| `RightCustomComponent`            | `React.ComponentType`          | `undefined`                     | Custom component to render on the right side of the controls.                                 |
+
+**Quality Interface**
+
+```ts
+interface Quality {
+  bitrate: number;
+  codecs: string;
+  framerate: number;
+  height: number;
+  name: string;
+  width: number;
+}
+```
+
+**DataResponse Interface**
+
+```ts
+interface DataResponse {
+  qualities: Quality[];
+  sessionId: string;
+  version: string;
+}
+```
+
+---
+
+#### Example
+
+Here is a more detailed example demonstrating the use of custom components and additional props:
+
+```jsx
+import React from 'react';
+import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import IVSPlayerComponent from 'react-native-newinstance-video-player';
+
+const LeftComponent = () => <Text style={styles.customText}>Left Component</Text>;
+const RightComponent = () => <Text style={styles.customText}>Right Component</Text>;
+
+const App = () => {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <IVSPlayerComponent
+        streamUrl="https://path/to/your/stream.m3u8"
+        isLive={true}
+        title="Live Stream"
+        isFullScreen={false}
+        LeftCustomComponent={LeftComponent}
+        RightCustomComponent={RightComponent}
+        leftCustomComponentContainerStyle={styles.customComponentContainer}
+        rightCustomComponentContainerStyle={styles.customComponentContainer}
+      />
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  customText: {
+    color: 'white',
+  },
+  customComponentContainer: {
+    padding: 10,
+  },
+});
+
+export default App;
+```
+
+---
+
+#### Contributing
+
+Contributions are welcome! Please read the [contributing guidelines](https://github.com/talktothelaw/react-native-newinstance-video-player/blob/main/CONTRIBUTING.md) first.
+
+#### License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/talktothelaw/react-native-newinstance-video-player/blob/main/LICENSE) file for details.
+
+---
+
+#### Author
+
+Lawrence Nwoko
+
+- Email: nwokolawrence6@gmail.com
+- GitHub: [talktothelaw](https://github.com/talktothelaw)
+
+---
+
+#### Repository
+
+GitHub: [react-native-newinstance-video-player](https://github.com/talktothelaw/react-native-newinstance-video-player)
+
+#### Bugs
+
+For issues, please visit the [GitHub Issues](https://github.com/talktothelaw/react-native-newinstance-video-player/issues) page.
+
+#### Homepage
+
+For more details, visit the [Homepage](https://github.com/talktothelaw/react-native-newinstance-video-player#readme).

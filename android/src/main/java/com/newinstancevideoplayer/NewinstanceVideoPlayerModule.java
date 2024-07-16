@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import android.content.pm.ActivityInfo;
 import android.view.WindowManager;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;

@@ -31,6 +31,7 @@ const Container = styled.View`
   align-items: center;
   flex-direction: row;
   justify-content: flex-end;
+  margin-right: ${px(5)}px;
 
 `
 const Image = styled.Image`
