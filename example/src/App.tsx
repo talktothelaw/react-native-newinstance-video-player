@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-newinstance-video-player';
+import { StyleSheet, View } from 'react-native';
+import Player from 'react-native-newinstance-video-player';
 
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
+  // const [result, setResult] = useState<number | undefined>();
 
-  useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
+  // useEffect(() => {
+  //   multiply(3, 7).then(setResult);
+  // }, []);
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Player
+        // autoplay={false}
+        streamUrl={
+          'https://sgp1.vultrobjects.com/nnc-live/videos/shoutout_from_friends/master.m3u8'
+        }
+      />
     </View>
   );
 }
