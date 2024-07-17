@@ -36,11 +36,11 @@ interface DataResponse {
 interface IVSPlayerComponentProps extends IVSPlayerProps {
   title?: string;
   isLive?: boolean;
-  isFullScreen: boolean;
+  isFullScreen?: boolean;
   LeftCustomComponent?: React.ComponentType;
   RightCustomComponent?: React.ComponentType;
-  leftCustomComponentContainerStyle: ViewStyle;
-  rightCustomComponentContainerStyle: ViewStyle;
+  leftCustomComponentContainerStyle?: ViewStyle;
+  rightCustomComponentContainerStyle?: ViewStyle;
 }
 
 const formatTime = (seconds: number) => {

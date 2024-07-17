@@ -27,12 +27,10 @@ export function multiply(a: number, b: number): Promise<number> {
 
 
 export function exitFullScreen() {
-  console.log("fullscreen");
   return NewinstanceVideoPlayer.exitFullScreen();
 }
 
 
 export function enterFullScreen() {
-  console.log("fullscreen3");
   return NewinstanceVideoPlayer.enterFullScreen();
 }
