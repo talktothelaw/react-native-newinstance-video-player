@@ -34,7 +34,7 @@ interface DataResponse {
 
 interface IVSPlayerComponentProps extends IVSPlayerProps {
   isFullScreen?: boolean;
-  hideSeekBar?: boolean
+  hideSeekBar?: boolean;
   LeftCustomComponent?: React.ComponentType;
   RightCustomComponent?: React.ComponentType;
   Header?: React.ComponentType;
@@ -53,7 +53,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                                                                  streamUrl,
                                                                  autoplay = true,
                                                                  loop = true,
-    hideSeekBar = false,
+                                                                 hideSeekBar = false,
                                                                  logLevel = LogLevel.IVSLogLevelError,
                                                                  muted = false,
                                                                  paused: initialPaused = false,
@@ -117,6 +117,10 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
     }).start();
     resetControlsTimeout();
   };
+
+  useEffect(() => {
+    setPaused(initialPaused)
+  }, [initialPaused]);
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -229,20 +233,20 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
             initialBufferDuration={initialBufferDuration}
             style={{ backgroundColor: '#000', ...style }}
           />
-          {isBuffering &&  (
+          {isBuffering && (
             <BufferingOverlay>
               <ActivityIndicator size="large" color="#fff" />
               <BufferingText>Loading...</BufferingText>
             </BufferingOverlay>
           )}
-          <AnimatedControls style={{ opacity: controlsOpacity, zIndex:9 }}>
+          <AnimatedControls style={{ opacity: controlsOpacity, zIndex: 9 }}>
             <Overlay>
               <Top>
                 <TopInner>
                   {!isFullScreen && <View style={{ marginTop: px(20) }} />}
                   {Header && <Header />}
                 </TopInner>
-                <CustomComponentContainer style={{ justifyContent:"flex-end"}}>
+                <CustomComponentContainer style={{ justifyContent: 'flex-end' }}>
                   <Volume volume={volume} handleVolumeValueChange={handleVolumeValueChange} />
                 </CustomComponentContainer>
               </Top>

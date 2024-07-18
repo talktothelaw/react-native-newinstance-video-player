@@ -1,6 +1,6 @@
 {
   "name": "react-native-newinstance-video-player",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "The react-native-newinstance-video-player is a highly customizable and versatile video player component designed for React Native applications. This package provides developers with a robust and feature-rich solution for embedding video playback capabilities within their mobile applications. Built with flexibility and ease of use in mind, react-native-newinstance-video-player allows for extensive customization to meet the specific needs of any project.",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.cjs",
