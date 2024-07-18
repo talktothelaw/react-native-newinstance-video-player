@@ -11,7 +11,6 @@ import IVSPlayer, { type IVSPlayerRef, LogLevel, type IVSPlayerProps } from 'ama
 import styled from 'styled-components/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { enterFullScreen, exitFullScreen, px } from './utiles';
-import IsLive from './Components/IsLive';
 import colors from './colors';
 import Slider from '@react-native-assets/slider';
 import Volume from './Components/Volume';
@@ -34,11 +33,11 @@ interface DataResponse {
 }
 
 interface IVSPlayerComponentProps extends IVSPlayerProps {
-  title?: string;
-  isLive?: boolean;
   isFullScreen?: boolean;
+  hideSeekBar?: boolean
   LeftCustomComponent?: React.ComponentType;
   RightCustomComponent?: React.ComponentType;
+  Header?: React.ComponentType;
   leftCustomComponentContainerStyle?: ViewStyle;
   rightCustomComponentContainerStyle?: ViewStyle;
 }
@@ -54,8 +53,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                                                                  streamUrl,
                                                                  autoplay = true,
                                                                  loop = true,
-                                                                 title,
-                                                                 isLive = false,
+    hideSeekBar = false,
                                                                  logLevel = LogLevel.IVSLogLevelError,
                                                                  muted = false,
                                                                  paused: initialPaused = false,
@@ -72,6 +70,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                                                                  onPipChange,
                                                                  onTimePoint,
                                                                  resizeMode,
+                                                                 Header,
                                                                  pipEnabled,
                                                                  onRebuffering, onLiveLatencyChange,
                                                                  onError, onLoadStart,
@@ -230,26 +229,24 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
             initialBufferDuration={initialBufferDuration}
             style={{ backgroundColor: '#000', ...style }}
           />
-          {isBuffering && isIOS && (
+          {isBuffering &&  (
             <BufferingOverlay>
               <ActivityIndicator size="large" color="#fff" />
               <BufferingText>Loading...</BufferingText>
             </BufferingOverlay>
           )}
-          <AnimatedControls style={{ opacity: controlsOpacity }}>
+          <AnimatedControls style={{ opacity: controlsOpacity, zIndex:9 }}>
             <Overlay>
               <Top>
                 <TopInner>
                   {!isFullScreen && <View style={{ marginTop: px(20) }} />}
-                  <IsLive isLive={isLive} />
-                  <Title numberOfLines={1} ellipsizeMode="tail">{title}</Title>
-                  <Volume volume={volume} handleVolumeValueChange={handleVolumeValueChange} />
+                  {Header && <Header />}
                 </TopInner>
-                {/*<CustomComponentContainer>*/}
-                {/*  <ContentOne></ContentOne>*/}
-                {/*  <ContentOne></ContentOne>*/}
-                {/*</CustomComponentContainer>*/}
+                <CustomComponentContainer style={{ justifyContent:"flex-end"}}>
+                  <Volume volume={volume} handleVolumeValueChange={handleVolumeValueChange} />
+                </CustomComponentContainer>
               </Top>
+
               <Bottom>
                 <CustomComponentContainer>
                   <ContentOne style={[{ left: px((3)) }, leftCustomComponentContainerStyle]}>
@@ -259,7 +256,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                     {RightCustomComponent && <RightCustomComponent />}
                   </ContentOne>
                 </CustomComponentContainer>
-                <BottomSectionOne>
+                {!hideSeekBar && <BottomSectionOne>
                   <PlayTime>{formatTime(currentTime)}</PlayTime>
                   <Slider
                     style={{ flex: 1, zIndex: 999, marginLeft: px(3), marginRight: px(3) }}
@@ -273,7 +270,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                     maximumTrackTintColor="rgba(211,211,211,0.44)"
                   />
                   <PlayTime>{formatTime(duration)}</PlayTime>
-                </BottomSectionOne>
+                </BottomSectionOne>}
                 <BottomSectionTwo>
                   <FullScreenContainer>
                     <FullScreenButton isFullScreen={isFullScreen || isInitFullScreen} onPress={handleFullScreen} />
@@ -332,10 +329,6 @@ const FullScreenContainer = styled.View`
   flex: 1;
 `;
 
-const Title = styled.Text`
-  color: ${colors.white};
-  flex: 1;
-`;
 
 const IVSPlayerWrapper = styled.View`
   flex: 1;
@@ -389,7 +382,7 @@ const BottomSectionTwo = styled.View`
   width: 100%;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${px(isIOS ? 10 : 3)}px;
+  margin-bottom: ${px(isIOS ? 7 : 3)}px;
 `;
 
 const BufferingOverlay = styled.View`

@@ -1,41 +1,83 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Slider from '@react-native-assets/slider';
 import styled from 'styled-components/native';
 import { px } from '../utiles';
 const AudioIcon = require('../../images/volume.png');
+const MuteIcon = require('../../images/mute.png');
+
 interface VolumeProps {
   volume: number;
   handleVolumeValueChange: (value: number) => void;
 }
 
 const Volume: React.FC<VolumeProps> = ({ volume, handleVolumeValueChange }) => {
+  const [isMute, setIsMute] = useState(false);
+  const [currentVolume, setCurrentVolume] = useState(volume);
+
+  useEffect(() => {
+    if (isMute) {
+      handleVolumeValueChange(0);
+    } else {
+      handleVolumeValueChange(currentVolume);
+    }
+  }, [isMute, currentVolume]);
+
+  const handleVolumeUpdate = (value: number) => {
+    setCurrentVolume(value);
+    if (isMute && value > 0) {
+      setIsMute(false);
+    }
+    handleVolumeValueChange(value);
+  };
+
+  const handleMute = () => {
+    setIsMute(!isMute);
+  };
+
   return (
     <Container>
-      <Image source={AudioIcon} resizeMode="stretch" style={{ width:20, height:20 }} />
-      <Slider
-        style={{ width:60 }}
-        minimumValue={0.0}
-        maximumValue={1.0}
-        slideOnTap
-        thumbTintColor="rgba(211,211,211,.8)"
-        value={volume}
-        onValueChange={handleVolumeValueChange}
-        minimumTrackTintColor="rgba(211,211,211,.8)"
-        maximumTrackTintColor="rgba(211,211,211,0.44)"
-      />
+      <SliderContainer>
+        <Slider
+          inverted
+          style={{ height: 70 }}
+          minimumValue={0.0}
+          maximumValue={1.0}
+          slideOnTap
+          vertical
+          thumbTintColor="rgba(211,211,211,.8)"
+          value={isMute ? 0 : currentVolume}
+          onValueChange={handleVolumeUpdate}
+          minimumTrackTintColor="rgba(211,211,211,.8)"
+          maximumTrackTintColor="rgba(211,211,211,0.44)"
+        />
+      </SliderContainer>
+      <IconContainer onPress={handleMute}>
+        <Image source={isMute ? MuteIcon : AudioIcon} resizeMode="stretch" style={{ width: 20, height: 20 }} />
+      </IconContainer>
     </Container>
   );
 };
-const Container = styled.View`
-  flex: 1;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-end;
-  margin-right: ${px(5)}px;
 
-`
+const Container = styled.View`
+  width: ${px(10)}px;
+  align-self: flex-end;
+  align-items: center;
+  padding: ${px(3)}px;
+  padding-top: ${px(4)}px;
+  justify-content: center;
+  margin-right: ${px(5)}px;
+  background-color: rgba(134, 134, 134, 0.42);
+  border-radius: ${px(2)}px;
+`;
+
+const SliderContainer = styled.View``;
+
+const IconContainer = styled.TouchableOpacity`
+  margin-top: ${px(3)}px;
+`;
+
 const Image = styled.Image`
-  margin-right: ${px(1)}px;
-`
+  margin-left: ${px(1)}px;
+`;
 
 export default Volume;

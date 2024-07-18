@@ -1,70 +1,62 @@
-### react-native-newinstance-video-player
+# React-Native Media Player
 
-**Version**: 0.1.0
 
----
+## Overview
 
-#### Description
+`React Native Media Player` is a React Native component built using `amazon-ivs-react-native-player`, which allows you to integrate Amazon IVS (Interactive Video Service) player with customizable controls and features into your React Native application.
 
-The `react-native-newinstance-video-player` is a highly customizable and versatile video player component designed for React Native applications. Built on top of the `amazon-ivs-react-native-player`, this package provides developers with a robust and feature-rich solution for embedding video playback capabilities within their mobile applications. Built with flexibility and ease of use in mind, `react-native-newinstance-video-player` allows for extensive customization to meet the specific needs of any project.
+## Installation
 
----
+First, install the necessary dependencies:
 
-#### Installation
+![img.png](img.png)
 
-To install the package along with its peer dependencies, use the following commands:
-
-```bash
-yarn add react-native-newinstance-video-player amazon-ivs-react-native-player @react-native-assets/slider react-native-element-dropdown
+```sh
+npm install amazon-ivs-react-native-player react-native-element-dropdown @react-native-assets/slider styled-components
 ```
 
-or with npm:
+Then, import and use the `IVSPlayerComponent` in your application.
 
-```bash
-npm install react-native-newinstance-video-player amazon-ivs-react-native-player @react-native-assets/slider react-native-element-dropdown
-```
-
----
-
-#### Usage
-
-Here is a basic example of how to use the `react-native-newinstance-video-player`:
+## Usage
 
 ```jsx
 import React from 'react';
-import { SafeAreaView } from 'react-native';
-import IVSPlayerComponent from 'react-native-newinstance-video-player';
+import IVSPlayerComponent from './IVSPlayerComponent';
 
 const App = () => {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <IVSPlayerComponent
-        streamUrl="https://path/to/your/stream.m3u8"
-        isLive={true}
-        title="Live Stream"
-        isFullScreen={false}
-      />
-    </SafeAreaView>
+    <IVSPlayerComponent
+      streamUrl="your_stream_url_here"
+      autoplay={true}
+      loop={true}
+      muted={false}
+      initialPaused={false}
+      playbackRate={1.0}
+      defaultVolume={1.0}
+      autoQualityMode={true}
+      isFullScreen={false}
+      hideSeekBar={false}
+      onError={(error) => console.error(error)}
+      onLoadStart={() => console.log('Loading started')}
+      onRebuffering={() => console.log('Rebuffering')}
+      onVideoStatistics={(stats) => console.log(stats)}
+      onLiveLatencyChange={(latency) => console.log('Latency: ', latency)}
+    />
   );
 };
 
 export default App;
 ```
 
----
+## API
 
-#### API
-
-**IVSPlayerComponent Props**
+### IVSPlayerComponent Props
 
 | Prop                              | Type                           | Default                         | Description                                                                                   |
 |-----------------------------------|--------------------------------|---------------------------------|-----------------------------------------------------------------------------------------------|
 | `streamUrl`                       | `string`                       | `undefined`                     | URL of the video stream.                                                                      |
 | `autoplay`                        | `boolean`                      | `true`                          | If true, the video will start playing automatically.                                          |
 | `loop`                            | `boolean`                      | `true`                          | If true, the video will loop when it reaches the end.                                         |
-| `title`                           | `string`                       | `undefined`                     | Title of the video.                                                                           |
-| `isLive`                          | `boolean`                      | `false`                         | If true, the video is a live stream.                                                          |
-| `logLevel`                        | `LogLevel`                     | `LogLevel.IVSLogLevelError`     | Log level for the IVS player.                                                                 |
 | `muted`                           | `boolean`                      | `false`                         | If true, the video will be muted.                                                             |
 | `paused`                          | `boolean`                      | `false`                         | If true, the video will be paused.                                                            |
 | `playbackRate`                    | `number`                       | `1.0`                           | Playback rate of the video.                                                                   |
@@ -88,12 +80,14 @@ export default App;
 | `onSeek`                          | `function`                     | `undefined`                     | Callback when seeking.                                                                        |
 | `initialBufferDuration`           | `number`                       | `undefined`                     | Initial buffer duration.                                                                      |
 | `isFullScreen`                    | `boolean`                      | `false`                         | If true, the player starts in full screen mode.                                               |
+| `hideSeekBar`                     | `boolean`                      | `false`                         | If true, hides the seek bar.                                                                  |
 | `leftCustomComponentContainerStyle` | `ViewStyle`                  | `undefined`                     | Custom styles for the left custom component container.                                        |
 | `rightCustomComponentContainerStyle` | `ViewStyle`                 | `undefined`                     | Custom styles for the right custom component container.                                       |
 | `LeftCustomComponent`             | `React.ComponentType`          | `undefined`                     | Custom component to render on the left side of the controls.                                  |
 | `RightCustomComponent`            | `React.ComponentType`          | `undefined`                     | Custom component to render on the right side of the controls.                                 |
+| `Header`                          | `React.ComponentType`          | `undefined`                     | Custom header component.                                                                      |
 
-**Quality Interface**
+### Quality Interface
 
 ```ts
 interface Quality {
@@ -106,7 +100,7 @@ interface Quality {
 }
 ```
 
-**DataResponse Interface**
+### DataResponse Interface
 
 ```ts
 interface DataResponse {
@@ -118,7 +112,7 @@ interface DataResponse {
 
 ---
 
-#### Example
+## Example
 
 Here is a more detailed example demonstrating the use of custom components and additional props:
 
@@ -161,17 +155,17 @@ export default App;
 
 ---
 
-#### Contributing
+## Contributing
 
 Contributions are welcome! Please read the [contributing guidelines](https://github.com/talktothelaw/react-native-newinstance-video-player/blob/main/CONTRIBUTING.md) first.
 
-#### License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/talktothelaw/react-native-newinstance-video-player/blob/main/LICENSE) file for details.
 
 ---
 
-#### Author
+## Author
 
 Lawrence Nwoko
 
@@ -180,14 +174,16 @@ Lawrence Nwoko
 
 ---
 
-#### Repository
+## Repository
 
 GitHub: [react-native-newinstance-video-player](https://github.com/talktothelaw/react-native-newinstance-video-player)
 
-#### Bugs
+## Bugs
 
 For issues, please visit the [GitHub Issues](https://github.com/talktothelaw/react-native-newinstance-video-player/issues) page.
 
-#### Homepage
+## Homepage
 
 For more details, visit the [Homepage](https://github.com/talktothelaw/react-native-newinstance-video-player#readme).
+
+---

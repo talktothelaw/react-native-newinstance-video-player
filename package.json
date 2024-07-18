@@ -91,10 +91,10 @@
     "@types/react": "^18.2.44"
   },
   "peerDependencies": {
+    "@react-native-assets/slider": "*",
     "amazon-ivs-react-native-player": "^1.5.0",
     "react": "*",
     "react-native": "*",
-    "@react-native-assets/slider": "*",
     "react-native-element-dropdown": "*"
   },
   "workspaces": [
