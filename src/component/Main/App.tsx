@@ -35,6 +35,7 @@ interface DataResponse {
 interface IVSPlayerComponentProps extends IVSPlayerProps {
   isFullScreen?: boolean;
   hideSeekBar?: boolean;
+  hidePlayButton?: boolean;
   LeftCustomComponent?: React.ComponentType;
   RightCustomComponent?: React.ComponentType;
   Header?: React.ComponentType;
@@ -43,6 +44,7 @@ interface IVSPlayerComponentProps extends IVSPlayerProps {
 }
 
 const formatTime = (seconds: number) => {
+  if(!isFinite(seconds)) return `00:00`
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
@@ -57,6 +59,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                                                                  logLevel = LogLevel.IVSLogLevelError,
                                                                  muted = false,
                                                                  paused: initialPaused = false,
+                                                                 hidePlayButton = false,
                                                                  playbackRate = 1.0,
                                                                  volume: defaultVolume = 1.0,
                                                                  quality: initialQuality,
@@ -138,13 +141,13 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
       useNativeDriver: true,
     }).start();
   };
-
   useEffect(() => {
     if (!isInitFullScreen) {
       exitFullScreen();
     } else {
       enterFullScreen();
     }
+    setIsFullScreen(isInitFullScreen)
   }, [isInitFullScreen]);
 
   const resetControlsTimeout = () => {
@@ -265,7 +268,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                   <Slider
                     style={{ flex: 1, zIndex: 999, marginLeft: px(3), marginRight: px(3) }}
                     minimumValue={0}
-                    maximumValue={duration}
+                    maximumValue={isFinite(duration) ? duration : 0}
                     thumbTintColor="rgba(211,211,211,.8)"
                     value={currentTime}
                     slideOnTap
@@ -280,7 +283,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
                     <FullScreenButton isFullScreen={isFullScreen || isInitFullScreen} onPress={handleFullScreen} />
                   </FullScreenContainer>
                   <PlayButtonContainer>
-                    <PlayPauseButton togglePlayPause={togglePlayPause} paused={paused} />
+                    {!hidePlayButton &&<PlayPauseButton togglePlayPause={togglePlayPause} paused={paused} />}
                   </PlayButtonContainer>
                   <DropDownContainer>
                     <Dropdown

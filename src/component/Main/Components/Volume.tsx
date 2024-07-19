@@ -44,11 +44,11 @@ const Volume: React.FC<VolumeProps> = ({ volume, handleVolumeValueChange }) => {
           maximumValue={1.0}
           slideOnTap
           vertical
-          thumbTintColor="rgba(211,211,211,.8)"
+          thumbTintColor="#fff"
           value={isMute ? 0 : currentVolume}
           onValueChange={handleVolumeUpdate}
-          minimumTrackTintColor="rgba(211,211,211,.8)"
-          maximumTrackTintColor="rgba(211,211,211,0.44)"
+          minimumTrackTintColor="#eaeaea"
+          maximumTrackTintColor="#fff"
         />
       </SliderContainer>
       <IconContainer onPress={handleMute}>
@@ -66,7 +66,7 @@ const Container = styled.View`
   padding-top: ${px(4)}px;
   justify-content: center;
   margin-right: ${px(5)}px;
-  background-color: rgba(134, 134, 134, 0.42);
+  background-color: rgba(134, 134, 134, 0.80);
   border-radius: ${px(2)}px;
 `;
 
