@@ -10,12 +10,12 @@ import {
 import IVSPlayer, { type IVSPlayerRef, LogLevel, type IVSPlayerProps } from 'amazon-ivs-react-native-player';
 import styled from 'styled-components/native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { enterFullScreen, exitFullScreen, px } from './utiles';
-import colors from './colors';
+import { enterFullScreen, exitFullScreen, px } from '../utiles';
+import colors from '../colors';
 import Slider from '@react-native-assets/slider';
-import Volume from './Components/Volume';
-import PlayPauseButton from './Components/PlayPauseButton';
-import FullScreenButton from './Components/FullScreenButton';
+import Volume from '../Components/Volume';
+import PlayPauseButton from '../Components/PlayPauseButton';
+import FullScreenButton from '../Components/FullScreenButton';
 
 interface Quality {
   bitrate: number;
@@ -32,7 +32,7 @@ interface DataResponse {
   version: string;
 }
 
-interface IVSPlayerComponentProps extends IVSPlayerProps {
+export interface IVSPlayerComponentProps extends IVSPlayerProps {
   isFullScreen?: boolean;
   hideSeekBar?: boolean;
   hidePlayButton?: boolean;
@@ -236,7 +236,7 @@ const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
             initialBufferDuration={initialBufferDuration}
             style={{ backgroundColor: '#000', ...style }}
           />
-          {isBuffering && (
+          {isBuffering && isIOS && (
             <BufferingOverlay>
               <ActivityIndicator size="large" color="#fff" />
               <BufferingText>Loading...</BufferingText>

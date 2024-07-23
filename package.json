@@ -83,6 +83,7 @@
     "react-native": "0.74.3",
     "react-native-builder-bob": "^0.25.0",
     "react-native-element-dropdown": "^2.12.1",
+    "react-native-video": "^6.4.2",
     "release-it": "^15.0.0",
     "styled-components": "^6.1.11",
     "turbo": "^1.10.7",
@@ -96,7 +97,8 @@
     "amazon-ivs-react-native-player": "^1.5.0",
     "react": "*",
     "react-native": "*",
-    "react-native-element-dropdown": "*"
+    "react-native-element-dropdown": "*",
+    "react-native-video": "^6.4.2"
   },
   "workspaces": [
     "example"
