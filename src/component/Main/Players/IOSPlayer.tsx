@@ -50,7 +50,7 @@ const formatTime = (seconds: number) => {
   return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
 const isIOS = Platform.OS === 'ios';
-const IVSPlayerComponent: React.FC<IVSPlayerComponentProps> = ({
+const IOSPlayer: React.FC<IVSPlayerComponentProps> = ({
                                                                  onQualityChange,
                                                                  streamUrl,
                                                                  autoplay = true,
@@ -419,4 +419,4 @@ const ContentOne = styled.View`
   min-width: ${px(20)}px;
   margin-bottom: ${px(10)}px;
 `;
-export default IVSPlayerComponent;
+export default IOSPlayer;
