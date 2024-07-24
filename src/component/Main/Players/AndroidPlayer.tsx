@@ -59,6 +59,7 @@ const AndroidPlayer: React.FC<VideoPlayerComponentProps> = ({
 
   return (
     <Container>
+      {Header && <Header />}
       <VideoPlayerWrapper>
         <Video
           fullscreenAutorotate={false}
@@ -83,7 +84,6 @@ const AndroidPlayer: React.FC<VideoPlayerComponentProps> = ({
             <BufferingText>Loading...</BufferingText>
           </BufferingOverlay>
         )}
-        {Header && <Header />}
         {showControls &&<OverlayContainer>
           {LeftCustomComponent && (
             <LeftComponentContainer style={leftCustomComponentContainerStyle}>
